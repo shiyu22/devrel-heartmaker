@@ -16,7 +16,7 @@ from github import Github
 grid_size = 20
 avatar_size = 64
 
-# Get Contributors start
+# Get Contributors start, total 167
 
 @click.command()
 @click.option("--org", help="Name of your GitHub organization", required=True)
@@ -47,7 +47,7 @@ def make_heart(org, token):
     # Get Contributors end
 
     # Render heart start
-    fig = plt.figure(figsize=(4.0, 4.0))
+    fig = plt.figure(figsize=(10.0, 10.0))
     grid = ImageGrid(
         fig,
         111,  # similar to subplot(111)
@@ -58,6 +58,7 @@ def make_heart(org, token):
 
     grid[0].get_yaxis().set_ticks([])
     grid[0].get_xaxis().set_ticks([])
+    all_contributors_bak = []
 
     print("Plotting heart (this may take a while)")
     for id, ax in enumerate(grid):
@@ -65,9 +66,17 @@ def make_heart(org, token):
         x /= grid_size / 3
         y /= grid_size / 3
         ax.axis("off")
-        if (x ** 2 + y ** 2 - 1) ** 3 - (x ** 2) * (y ** 3) < 0 and all_contributors:
-            shuffle(all_contributors)
-            url = all_contributors.pop(0)
+        if (x ** 2 + y ** 2 - 1) ** 3 - (x ** 2) * (y ** 3) < 0:
+            try:
+                shuffle(all_contributors)
+                url = all_contributors.pop(0)
+                all_contributors_bak.append(url)
+            except:
+                print(".............")
+                shuffle(all_contributors_bak)
+                url = all_contributors_bak.pop(0)
+            print("=====url",url)
+
             if isinstance(url, str):
                 req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
                 # Iterating over the grid returns the Axes.
@@ -75,7 +84,7 @@ def make_heart(org, token):
                     img = Image.open(f)
                     img = img.resize((avatar_size, avatar_size))
                     im = np.asarray(img)
-            all_contributors.append(url)
+#             all_contributors.append(url)
             ax.imshow(im)
 
         else:
@@ -83,7 +92,8 @@ def make_heart(org, token):
 
     plt.box(False)
     plt.axis("off")
-    plt.show()
+#     plt.show()
+    plt.savefig('heartmaker.png')
 
     # Render heart end
 
